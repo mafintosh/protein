@@ -119,6 +119,17 @@ protein().use(random).use(function(request, response) {
 });
 ```
 
+For more examples on how to create your own reusable middleware see the [included middleware](https://github.com/mafintosh/Protein/tree/master/middleware).
+To use the included middleware simply do:
+
+``` js
+protein().use(protein.query).use(function(request, response) {
+	response.end(JSON.stringify(request.query));
+});
+```
+
+The others include `protein.json`, `protein.log` and `protein.form`
+
 # Connect compatability
 
 All Connect modules should be compatable with Protein. To make a Protein module compatable with Connect you first need wrap it:
