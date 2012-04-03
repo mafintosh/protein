@@ -1,6 +1,7 @@
 # Protein
 
-Protein is connect compatable middleware with support for prototype methods, getters and setters
+Protein is connect compatable middleware with support for prototype methods, getters and setters.
+
 It's available through npm:
 
 	npm install protein
@@ -32,6 +33,7 @@ require('http').createServer(fn).listen(8080);
 ```
 
 But if we look closer at the above example we are actually parsing the query on every request even though we never use it.
+
 Wouldn't it be nicer to just parse when we access it?
 Using Protein we can just define a getter on the middleware prototype:
 
@@ -44,6 +46,7 @@ var fn = protein()
 ```
 
 Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.
+
 Notice Protein is actually defining the getter on the middleware prototype for us so the is actually only defined once - NOT every request.
 
 Similary we could just define `sendQuery` on the middleware prototype instead of defining it on every request:
