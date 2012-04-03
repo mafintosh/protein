@@ -45,8 +45,7 @@ var fn = protein()
 	.use( ... )
 ```
 
-Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.
-
+Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.  
 Notice Protein is actually defining the getter on the middleware prototype for us so the is actually only defined once - *NOT* every request.
 
 Similary we could just define `sendQuery` on the middleware prototype instead of defining it on every request:
