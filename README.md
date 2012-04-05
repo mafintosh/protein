@@ -48,7 +48,7 @@ var fn = connect()
 		next();
 	})
 	.use(function() {
-		response.end('hello world');
+		response.end('hello world'); // Explained below
 	});
 
 require('http').createServer(fn).listen(8080);
