@@ -21,7 +21,7 @@ var fn = protein()
 	.fn('response.echo', function() {		
 		this.end(JSON.stringify(this.request.query));
 	})
-	.use(function() {
+	.use(function(request, response) {
 		response.echo();
 	});
 
