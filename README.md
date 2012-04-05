@@ -1,6 +1,6 @@
 # Protein
 
-Protein is connect compatable middleware with support for prototype methods, getters and setters.
+Protein is [Connect](https://github.com/senchalabs/connect) compatable middleware with support for prototype methods, getters and setters.
 
 It's available through npm:
 
@@ -8,7 +8,7 @@ It's available through npm:
 
 # What problem does it solve?
 
-Like connect you protein combines your middleware to a single function:
+Like [Connect](https://github.com/senchalabs/connect) Protein combines your middleware to a single function:
 
 ``` js
 var protein = require('protein');
