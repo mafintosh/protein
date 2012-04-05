@@ -47,7 +47,7 @@ var fn = connect()
 		};
 		next();
 	})
-	.use(function() {
+	.use(function(request, response) {
 		// Explained below
 		response.end('hello world');
 	});
@@ -98,7 +98,7 @@ var fn = protein()
 	.fn('response.echo', function() {
 		this.end(JSON.stringify(request.query));
 	})
-	.use(function() {
+	.use(function(request, response) {
 		// this method is the only one which is run on every request
 		response.end('hello world');
 	});
