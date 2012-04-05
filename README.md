@@ -71,14 +71,14 @@ var fn = protein()
 Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.  
 Notice Protein is actually defining the getter on the middleware prototype for us so the is actually only defined once - *NOT* every request.
 
-Similary we could just define `sendQuery` on the middleware prototype instead of defining it on every request:
+Similary we could just define `echo` on the middleware prototype instead of defining it on every request:
 
 ``` js
 var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.echo', functoin() {
+	.fn('response.echo', function() {
 		this.end(JSON.stringify(request.query));
 	})
 	.use( ... )
@@ -95,7 +95,7 @@ var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.echo', functoin() {
+	.fn('response.echo', function() {
 		this.end(JSON.stringify(request.query));
 	})
 	.use(function() {
