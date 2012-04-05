@@ -13,17 +13,18 @@ var protein = require('protein');
 var url = require('url');
 
 var fn = protein()
-	// Add a query property to the request. The you can use request.query to access the parsed query
+	// Adds a query property to the request. Then you can use request.query to access the parsed query
 	.getter('request.query', function() {
 		// Notice that the parsing is only taking place the first time we access it
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.echo', functoin() {
+	// Adds an echo method to the response. Use response.echo() to return the query
+	.fn('response.echo', function() {		
 		this.end(JSON.stringify(this.request.query));
 	})
 	.use(function() {
-		// this method is the only one which is run on every request
-		response.end('hello world');
+		// This method is the only one which is run on every request
+		response.echo();
 	});
 
 require('http').createServer(fn).listen(8080);
