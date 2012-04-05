@@ -16,7 +16,7 @@ var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.sendQuery', functoin() {
+	.fn('response.echo', functoin() {
 		this.end(JSON.stringify(request.query));
 	})
 	.use(function() {
@@ -41,7 +41,7 @@ var fn = connect()
 		next();
 	})
 	.use(function(request, response, next) {
-		response.sendQuery = function() {
+		response.echo = function() {
 			response.end(JSON.stringify(request.query));
 		};
 		next();
@@ -76,7 +76,7 @@ var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.sendQuery', functoin() {
+	.fn('response.echo', functoin() {
 		this.end(JSON.stringify(request.query));
 	})
 	.use( ... )
@@ -93,7 +93,7 @@ var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.sendQuery', functoin() {
+	.fn('response.echo', functoin() {
 		this.end(JSON.stringify(request.query));
 	})
 	.use(function() {
