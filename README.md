@@ -13,7 +13,7 @@ var protein = require('protein');
 var url = require('url');
 
 var fn = protein()
-	// Adds a query property to the request. Then you can use request.query to access the parsed query
+	// Adds a query property to the request. Use request.query to access the parsed query
 	.getter('request.query', function() {
 		// Notice that the parsing is only taking place the first time we access it
 		return this._query || (this._query = url.parse(request.url, true).query);
