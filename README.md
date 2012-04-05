@@ -1,6 +1,6 @@
 # Protein
 
-Protein is http middleware for Node with support for prototype methods, getters and setters.
+Protein is http middleware for Node with support for prototype methods, getters and setters. It's compatible with [Connect](https://github.com/senchalabs/connect)
 
 It's available through npm:
 
