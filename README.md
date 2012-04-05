@@ -1,6 +1,6 @@
 # Protein
 
-Protein is [Connect](https://github.com/senchalabs/connect) compatable middleware with support for prototype methods, getters and setters.
+Protein is [Connect](https://github.com/senchalabs/connect) compatible middleware with support for prototype methods, getters and setters.
 
 It's available through npm:
 
@@ -153,7 +153,7 @@ The others include `protein.json`, `protein.log` and `protein.form`
 
 # Connect compatability
 
-All Connect modules should be compatable with Protein. To make a Protein module compatable with Connect you first need wrap it:
+All Connect modules should be compatable with Protein. To make a Protein module compatible with Connect you first need wrap it:
 
 ``` js
 var connectable = protein().use(myProteinMiddleware);
