@@ -6,15 +6,36 @@ It's available through npm:
 
 	npm install protein
 
-# What problem does it solve?
-
-Like [Connect](https://github.com/senchalabs/connect) Protein combines your middleware to a single function:
+# Example
 
 ``` js
 var protein = require('protein');
 var url = require('url');
 
 var fn = protein()
+	.getter('request.query', function() {
+		return this._query || (this._query = url.parse(request.url, true).query);
+	})
+	.fn('response.sendQuery', functoin() {
+		this.end(JSON.stringify(request.query));
+	})
+	.use(function() {
+		// this method is the only one which is run on every request
+		response.end('hello world');
+	});
+
+require('http').createServer(fn).listen(8080);
+```
+
+# Wat?
+
+If we rewrite the above example using [Connect](https://github.com/senchalabs/connect) it would look like.
+
+``` js
+var connect = require('connect');
+var url = require('url');
+
+var fn = connect()
 	.use(function(request, response, next) {
 		request.query = url.parse(request.url, true).query;
 		next();
