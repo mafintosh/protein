@@ -1,6 +1,6 @@
 # Protein
 
-Protein is [Connect](https://github.com/senchalabs/connect) compatible middleware with support for prototype methods, getters and setters.
+Protein is http middleware for Node with support for prototype methods, getters and setters.
 
 It's available through npm:
 
@@ -13,11 +13,13 @@ var protein = require('protein');
 var url = require('url');
 
 var fn = protein()
+	// Add a query property to the request. The you can use request.query to access the parsed query
 	.getter('request.query', function() {
+		// Notice that the parsing is only taking place the first time we access it
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
 	.fn('response.echo', functoin() {
-		this.end(JSON.stringify(request.query));
+		this.end(JSON.stringify(this.request.query));
 	})
 	.use(function() {
 		// this method is the only one which is run on every request
