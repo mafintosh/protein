@@ -23,7 +23,6 @@ var fn = protein()
 		this.end(JSON.stringify(this.request.query));
 	})
 	.use(function() {
-		// This method is the only one which is run on every request
 		response.echo();
 	});
 
