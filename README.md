@@ -1,31 +1,54 @@
 # Protein
 
-Protein is connect compatable middleware with support for prototype methods, getters and setters.
+Protein is http middleware for Node with support for prototype methods, getters and setters. It's compatible with [Connect](https://github.com/senchalabs/connect)
 
 It's available through npm:
 
 	npm install protein
 
-# What problem does it solve?
-
-Like connect you protein combines your middleware to a single function:
+# Example
 
 ``` js
 var protein = require('protein');
 var url = require('url');
 
 var fn = protein()
+	// Adds a query property to the request. Use request.query to access the parsed query
+	.getter('request.query', function() {
+		return this._query || (this._query = url.parse(request.url, true).query);
+	})
+	// Adds an echo method to the response. Use response.echo() to return the query
+	.fn('response.echo', function() {		
+		this.end(JSON.stringify(this.request.query));
+	})
+	.use(function(request, response) {
+		response.echo();
+	});
+
+require('http').createServer(fn).listen(8080);
+```
+
+# Wat?
+
+If we rewrite the above example using [Connect](https://github.com/senchalabs/connect) it would look like.
+
+``` js
+var connect = require('connect');
+var url = require('url');
+
+var fn = connect()
 	.use(function(request, response, next) {
 		request.query = url.parse(request.url, true).query;
 		next();
 	})
 	.use(function(request, response, next) {
-		response.sendQuery = function() {
+		response.echo = function() {
 			response.end(JSON.stringify(request.query));
 		};
 		next();
 	})
-	.use(function() {
+	.use(function(request, response) {
+		// Explained below
 		response.end('hello world');
 	});
 
@@ -48,14 +71,14 @@ var fn = protein()
 Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.  
 Notice Protein is actually defining the getter on the middleware prototype for us so the is actually only defined once - *NOT* every request.
 
-Similary we could just define `sendQuery` on the middleware prototype instead of defining it on every request:
+Similary we could just define `echo` on the middleware prototype instead of defining it on every request:
 
 ``` js
 var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.sendQuery', functoin() {
+	.fn('response.echo', function() {
 		this.end(JSON.stringify(request.query));
 	})
 	.use( ... )
@@ -72,10 +95,10 @@ var fn = protein()
 	.getter('request.query', function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.sendQuery', functoin() {
+	.fn('response.echo', function() {
 		this.end(JSON.stringify(request.query));
 	})
-	.use(function() {
+	.use(function(request, response) {
 		// this method is the only one which is run on every request
 		response.end('hello world');
 	});
@@ -124,7 +147,7 @@ For more examples on how to create your own reusable middleware see the [example
 
 # Connect compatability
 
-All Connect modules should be compatable with Protein. To make a Protein module compatable with Connect you first need wrap it:
+All Connect modules should be compatable with Protein. To make a Protein module compatible with Connect you first need wrap it:
 
 ``` js
 var connectable = protein().use(myProteinMiddleware);
