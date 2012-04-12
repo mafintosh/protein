@@ -107,8 +107,4 @@ var protein = function(parent) {
 	return reduce;
 };
 
-require('fs').readdirSync(__dirname+'/middleware').forEach(function(name) {
-	protein[name.replace(/\.js$/i, '')] = require('./middleware/'+name);
-});
-
 module.exports = protein;

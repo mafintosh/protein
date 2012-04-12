@@ -90,6 +90,7 @@ If you want to create middleware that can be reused in other places and which ex
 ``` js
 var random = function(request, response, next) {
 	request.random = Math.random();
+	next();
 };
 
 random.response = {}; // the collection of middleware response prototype methods
@@ -119,16 +120,7 @@ protein().use(random).use(function(request, response) {
 });
 ```
 
-For more examples on how to create your own reusable middleware see the [included middleware](https://github.com/mafintosh/Protein/tree/master/middleware).
-To use the included middleware simply do:
-
-``` js
-protein().use(protein.query).use(function(request, response) {
-	response.end(JSON.stringify(request.query));
-});
-```
-
-The others include `protein.json`, `protein.log` and `protein.form`
+For more examples on how to create your own reusable middleware see the [examples](https://github.com/mafintosh/Protein/tree/master/examples).
 
 # Connect compatability
 
