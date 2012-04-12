@@ -147,7 +147,7 @@ For more examples on how to create your own reusable middleware see the [example
 
 # Connect compatability
 
-All Connect modules should be compatable with Protein. To make a Protein module compatible with Connect you need wrap it:
+All Connect modules should be compatable with Protein. To make a Protein module compatible with Connect you need to wrap it:
 
 ``` js
 var connectable = protein().use(myProteinMiddleware);
