@@ -1,9 +1,6 @@
 var http = require('http');
 
-var PROTOS = {
-	request: http.IncomingMessage.prototype,
-	response: http.ServerResponse.prototype
-};
+var PROTOS = {request: http.IncomingMessage.prototype, response: http.ServerResponse.prototype};
 var NAMES = Object.keys(PROTOS);
 
 var noop = function() {};
