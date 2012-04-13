@@ -1,6 +1,6 @@
 # Protein
 
-Protein is http middleware for Node with support for prototype methods, getters and setters. It's compatible with [Connect](https://github.com/senchalabs/connect)
+Protein is http middleware for Node with support for prototype methods, getters and setters. It's compatible with [Connect](https://github.com/senchalabs/connect).
 
 It's available through npm:
 
@@ -145,7 +145,7 @@ protein().use(random).use(function(request, response) {
 
 For more examples on how to create your own reusable middleware see the [examples](https://github.com/mafintosh/Protein/tree/master/examples).
 
-# Connect compatability
+# Connect compatibility
 
 All Connect modules should be compatible with Protein. To make a Protein module compatible with Connect you need to wrap it:
 
