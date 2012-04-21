@@ -3,7 +3,6 @@ var http = require('http');
 var PROTOS = {request: http.IncomingMessage.prototype, response: http.ServerResponse.prototype};
 var NAMES = Object.keys(PROTOS);
 
-var noop = function() {};
 var extend = function(to, from) {
 	if (!from) return to;
 
@@ -30,29 +29,43 @@ var shorthand = function(proto, name, fn) {
 	fn(proto[name[0]], name[1]);
 	return proto;
 };
+var onerror = function(err, req, res) {
+	if (err) {
+		console.error(err.stack);
+		res.writeHead(500, {'Content-Type': 'text/plain'});
+		res.end(err.stack+'\n');
+		return;
+	}
+	res.writeHead(404);
+	res.end();
+};
 var protein = function(parent) {
 	parent = parent || {};
 
 	var stack = [];
-	var reduce = function(request, response, callback) {
+	var reduce = function(req, res, callback) {
 		var i = 0;
 		var loop = function(err) {
 			var next = stack[i++];
 
-			if (!next) return (callback || noop)(err);
-			if (err && next.length < 4) return loop(err);
-			if (next.length >= 4) return next(err, request, response, loop);
+			if (!next) return (callback || onerror)(err, req, res);
 
-			next(request, response, loop);
+			try {
+				if (err && next.length < 4) return loop(err);
+				if (next.length >= 4) return next(err, req, res, loop);
+				next(req, res, loop);
+			} catch (err) {
+				loop(err);
+			}
 		};
 
 		// set request prototype
-		request.response = response;
-		request.__proto__ = reduce.request;
+		req.response = res;
+		req.__proto__ = reduce.request;
 
 		// set response prototype
-		response.request = request;
-		response.__proto__ = reduce.response;
+		res.request = req;
+		res.__proto__ = reduce.response;
 
 		// bootstrap the loop
 		loop();
