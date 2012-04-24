@@ -7,8 +7,6 @@ var extend = function(to, from) {
 	if (!from) return to;
 
 	Object.keys(from).forEach(function(key) {
-		if (key in to) return;
-
 		var getter = from.__lookupGetter__(key);
 		var setter = from.__lookupSetter__(key);
 

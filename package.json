@@ -1,6 +1,6 @@
 {
  "name":"protein",
- "version":"0.3.1",
+ "version":"0.3.2",
  "repository": "git://github.com/mafintosh/protein",
  "description":"Protein is connect compatible middleware with support for prototype methods, getters, and setters",
  "keywords": ["web", "middleware", "connect", "prototype", "prototypical", "getters", "setters"],
