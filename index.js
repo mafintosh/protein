@@ -45,10 +45,17 @@ var protein = function(parent) {
 	var stack = [];
 	var reduce = function(req, res, callback) {
 		var i = 0;
+		var url = req.url;
 		var loop = function(err) {
 			var next = stack[i++];
+			var route = next && next.route;
+
+			req.url = url;
 
 			if (!next) return (callback || onerror)(err, req, res);
+			if (route && req.url.substr(0, route.length) === route) {
+				req.url = req.url.substr(route.length);
+			}
 
 			try {
 				if (err && next.length < 4) return loop(err);
@@ -79,13 +86,19 @@ var protein = function(parent) {
 	reduce.using = function(fn) {
 		return stack.indexOf(fn) > -1;
 	};
-	reduce.use = function(fn, options) {
+	reduce.use = function(route, fn, options) {
+		if (typeof route !== 'string') {
+			options = fn;
+			fn = route;
+			route = null;
+		}
 		if (!fn) return reduce;
 		if (Array.isArray(fn)) {
 			fn.forEach(reduce.use);
 			return reduce;
 		}
 		if (typeof fn === 'function') {
+			fn.route = route && route.replace(/\/$/, '')+'/';
 			stack.push(fn);
 		}
 		if (!options || options.extend !== false) {
