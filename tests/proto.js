@@ -13,9 +13,11 @@ var fn = protein()
 	.use(protos2)
 	.use(function(req, res) {
 		complete = true;
-		assert.ok(req.hello === protos1.request.hello);
-		assert.ok(res.world === protos2.response.world);
+		assert.equal(req.hello, protos1.request.hello);
+		assert.equal(res.world, protos2.response.world);
 	});
 
-fn({}, {});
+fn({}, {}, function(err) {
+	throw err;
+});
 assert.ok(complete);

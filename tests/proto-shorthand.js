@@ -14,5 +14,7 @@ var fn = protein()
 		assert.ok(res.world === world);
 	});
 
-fn({}, {});
+fn({}, {}, function(err) {
+	throw err;
+});
 assert.ok(complete);

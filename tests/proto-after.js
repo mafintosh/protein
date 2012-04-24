@@ -11,11 +11,13 @@ var complete = false;
 var fn = protein()
 	.use(function(req, res) {
 		complete = true;
-		assert.ok(req.hello === protos1.request.hello);
-		assert.ok(res.world === protos2.response.world);
+		assert.equal(req.hello, protos1.request.hello);
+		assert.equal(res.world, protos2.response.world);
 	})
 	.use(protos1)
 	.use(protos2);
 
-fn({}, {});
+fn({}, {}, function(err) {
+	throw err;
+});
 assert.ok(complete);

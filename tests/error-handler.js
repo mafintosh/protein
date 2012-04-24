@@ -11,7 +11,7 @@ var fn = protein()
 	});
 
 fn({}, {}, function(err) {
-	assert.ok(!!err);
+	assert.equal(err && err.message, 'lol');
 	complete = true;
 });
 assert.ok(complete);

@@ -24,7 +24,9 @@ var fn = protein()
 		assert.equal(complete++, 3);
 	});
 
-fn({}, {});
+fn({}, {}, function(err) {
+	throw err;
+});
 
 process.nextTick(function() {
 	assert.equal(complete, 4);

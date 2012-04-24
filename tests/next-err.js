@@ -11,5 +11,7 @@ var fn = protein()
 		complete = true;
 	});
 
-fn({}, {});
+fn({}, {}, function(err) {
+	throw err;
+});
 assert.ok(complete);
