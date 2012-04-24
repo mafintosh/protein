@@ -54,7 +54,7 @@ var protein = function(parent) {
 			if (!next) return (callback || onerror)(err, req, res);
 			if (route) {
 				if (req.url.substr(0, route.length) !== route) return loop(err);
-				req.url = req.url.substr(route.length-1);				
+				req.url = req.url.substr(route.length-1);
 			}
 			try {
 				if (err && next.length < 4) return loop(err);
