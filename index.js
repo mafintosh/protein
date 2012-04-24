@@ -51,12 +51,12 @@ var protein = function(parent) {
 			var route = next && next.route;
 
 			req.url = url;
-
+			
 			if (!next) return (callback || onerror)(err, req, res);
+
 			if (route && req.url.substr(0, route.length) === route) {
 				req.url = req.url.substr(route.length);
 			}
-
 			try {
 				if (err && next.length < 4) return loop(err);
 				if (next.length >= 4) return next(err, req, res, loop);
@@ -86,25 +86,22 @@ var protein = function(parent) {
 	reduce.using = function(fn) {
 		return stack.indexOf(fn) > -1;
 	};
-	reduce.use = function(route, fn, options) {
-		if (typeof route !== 'string') {
-			options = fn;
+	reduce.use = function(route, fn) {
+		if (!fn) {
 			fn = route;
 			route = null;
 		}
 		if (!fn) return reduce;
 		if (Array.isArray(fn)) {
-			fn.forEach(reduce.use);
+			fn.forEach(reduce.use.bind(reduce, route));
 			return reduce;
 		}
 		if (typeof fn === 'function') {
 			fn.route = route && route.replace(/\/$/, '')+'/';
 			stack.push(fn);
 		}
-		if (!options || options.extend !== false) {
-			extend(reduce.request, fn.request);
-			extend(reduce.response, fn.response);
-		};
+		extend(reduce.request, fn.request);
+		extend(reduce.response, fn.response);
 		return reduce;
 	};
 	reduce.fn = function(name, fn) {
