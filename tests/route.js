@@ -42,6 +42,10 @@ var fn = protein()
 		assert.equal(req.url, '/more');
 		next();
 	})
+	.use('/myurl/more', function(req, res, next) {
+		assert.equal(req.url, '/');
+		next();
+	})
 	.use(function(req, res) {
 		complete = true;
 		assert.equal(req.url, URL);

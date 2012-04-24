@@ -51,8 +51,10 @@ var protein = function(parent) {
 			req.url = url;
 			if (!next) return (callback || onerror)(err, req, res);
 			if (route) {
-				if (req.url.substr(0, route.length) !== route) return loop(err);
-				req.url = req.url.substr(route.length-1);
+				if (url.substr(0, route.length) !== route) return loop(err);
+				req.url = url.substr(route.length) || '/';
+				if (req.url[0] === '?') req.url = '/'+req.url;
+				if (req.url[0] !== '/') return loop(err);
 			}
 			try {
 				if (err && next.length < 4) return loop(err);
@@ -94,7 +96,7 @@ var protein = function(parent) {
 			return reduce;
 		}
 		if (typeof fn === 'function') {
-			fn.route = route && route.replace(/\/$/, '')+'/';
+			fn.route = route && route.replace(/\/$/, '');
 			stack.push(fn);
 		}
 		extend(reduce.request, fn.request);
