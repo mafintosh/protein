@@ -65,6 +65,9 @@ var protein = function(parent) {
 			}
 		};
 
+		// set the callback
+		req.next = res.next = loop;
+
 		// set request prototype
 		req.response = res;
 		req.__proto__ = reduce.request;
