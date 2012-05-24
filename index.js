@@ -98,12 +98,17 @@ var protein = function(parent) {
 			fn.forEach(reduce.use.bind(reduce, route));
 			return reduce;
 		}
-		if (typeof fn === 'function') {
-			fn.route = route && route.replace(/\/$/, '');
-			stack.push(fn);
-		}
+
 		extend(reduce.request, fn.request);
 		extend(reduce.response, fn.response);
+
+		if (typeof fn === 'object') {
+			fn = fn.middleware;
+		}
+		if (typeof fn === 'function') {
+			fn.route = route && route.replace(/\/$/, ''); // FIXME: bug here if fn is reused :(
+			stack.push(fn);
+		}
 		return reduce;
 	};
 	reduce.fn = function(name, fn) {
