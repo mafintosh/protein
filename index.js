@@ -98,17 +98,12 @@ var protein = function(parent) {
 			fn.forEach(reduce.use.bind(reduce, route));
 			return reduce;
 		}
-
-		extend(reduce.request, fn.request);
-		extend(reduce.response, fn.response);
-
-		if (typeof fn === 'object') {
-			fn = fn.middleware;
-		}
 		if (typeof fn === 'function') {
 			fn.route = route && route.replace(/\/$/, ''); // FIXME: bug here if fn is reused :(
 			stack.push(fn);
 		}
+		extend(reduce.request, fn.request);
+		extend(reduce.response, fn.response);
 		return reduce;
 	};
 	reduce.fn = function(name, fn) {
@@ -125,11 +120,6 @@ var protein = function(parent) {
 		return shorthand(reduce, name, function(proto, setter) {
 			proto.__defineSetter__(setter, fn);
 		});
-	};
-	reduce.listen = function() {
-		var server = http.createServer(reduce);
-
-		return server.listen.apply(server, arguments);
 	};
 	return reduce;
 };

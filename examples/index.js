@@ -1,6 +1,7 @@
 var protein = require('protein');
+var http = require('http');
 
-protein()
+var fn = protein()
 	.use(require('./middleware/json'))
 	.use(require('./middleware/query'))
 	.fn('response.echo', function() {
@@ -8,7 +9,9 @@ protein()
 	})
 	.use(function(req, res) {
 		res.echo();
-	})
-	.listen(8888);
+	});
+
+
+http.createServer(fn).listen(8888);
 
 console.log('visit http://localhost:8888/?foo=bar');
