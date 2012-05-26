@@ -19,7 +19,7 @@ var extend = function(to, from) {
 	return to;
 };
 var shorthand = function(proto, name, fn) {
-	name = name.split('.');
+	name = name.replace(/^res\./,'response.').replace(/^req\./, 'request.').split('.');
 
 	if (name.length !== 2) return proto;
 	if (!PROTOS[name[0]]) return proto;
