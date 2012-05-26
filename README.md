@@ -157,7 +157,7 @@ connect.use(connectable);
 
 # License
 
-_This software is licensed under "MIT"_
+**This software is licensed under "MIT"**
 
 > Copyright (c) 2012 Mathias Buus Madsen <mathiasbuus@gmail.com>
 > 
