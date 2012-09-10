@@ -1,11 +1,7 @@
-var http = require('http');
+var clone = function(from, to) {
+	if (!from) return;
 
-var PROTOS = {request: http.IncomingMessage.prototype, response: http.ServerResponse.prototype};
-var NAMES = Object.keys(PROTOS);
-
-var extend = function(to, from) {
-	if (!from) return to;
-
+	to = to || {};
 	Object.keys(from).forEach(function(key) {
 		var getter = from.__lookupGetter__(key);
 		var setter = from.__lookupSetter__(key);
@@ -15,17 +11,26 @@ var extend = function(to, from) {
 
 		to[key] = from[key];
 	});
-
 	return to;
 };
-var shorthand = function(proto, name, fn) {
-	name = name.replace(/^res\./,'response.').replace(/^req\./, 'request.').split('.');
+var injector = function() {
+	var hash = [];
+	var protos = [];
+	var inject = function(obj) {
+		var i = hash.indexOf(obj.__proto__);
 
-	if (name.length !== 2) return proto;
-	if (!PROTOS[name[0]]) return proto;
+		if (i === -1) {
+			i = protos.indexOf(obj.__proto__);
+		}
+		if (i === -1) {
+			protos[protos.push(clone(inject.proto))-1].__proto__ = obj.__proto__;
+			i = hash.push(obj.__proto__)-1;
+		}
+		obj.__proto__ = protos[i];
+	};
 
-	fn(proto[name[0]], name[1]);
-	return proto;
+	inject.proto = {};
+	return inject;
 };
 var onerror = function(err, req, res) {
 	if (err) {
@@ -37,10 +42,17 @@ var onerror = function(err, req, res) {
 	res.writeHead(404);
 	res.end();
 };
-var protein = function(parent) {
-	parent = parent || {};
-
+var protein = function() {
 	var stack = [];
+	var onrequest = injector();
+	var onresponse = injector();
+
+	var shorthand = function(define) {
+		return function(name, fn) {
+			define(reduce[name.split('.')[0]], name.split('.').pop(), fn);
+			return reduce;
+		};
+	};
 	var reduce = function(req, res, callback) {
 		var i = 0;
 		var url = req.url;
@@ -70,19 +82,27 @@ var protein = function(parent) {
 
 		// set request prototype
 		req.response = res;
-		req.__proto__ = reduce.request;
+		onrequest(req);
 
 		// set response prototype
 		res.request = req;
-		res.__proto__ = reduce.response;
+		onresponse(res);
 
 		// bootstrap the loop
 		loop();
 	};
 
-	NAMES.forEach(function(name) {
-		reduce[name] = {};
-		reduce[name].__proto__ = parent[name] || PROTOS[name];
+	reduce.request = onrequest.proto;
+	reduce.response = onresponse.proto;
+
+	reduce.getter = shorthand(function(proto, name, fn) {
+		proto.__defineGetter__(name, fn);
+	});
+	reduce.setter = shorthand(function(proto, name, fn) {
+		proto.__defineSetter__(name, fn);
+	});
+	reduce.fn = shorthand(function(proto, name, fn) {
+		proto[name] = fn;
 	});
 
 	reduce.using = function(fn) {
@@ -102,24 +122,9 @@ var protein = function(parent) {
 			fn.route = route && route.replace(/\/$/, ''); // FIXME: bug here if fn is reused :(
 			stack.push(fn);
 		}
-		extend(reduce.request, fn.request);
-		extend(reduce.response, fn.response);
+		clone(fn.request, reduce.request);
+		clone(fn.response, reduce.response);
 		return reduce;
-	};
-	reduce.fn = function(name, fn) {
-		return shorthand(reduce, name, function(proto, method) {
-			proto[method] = fn;
-		});
-	};
-	reduce.getter = function(name, fn) {
-		return shorthand(reduce, name, function(proto, getter) {
-			proto.__defineGetter__(getter, fn);
-		});
-	};
-	reduce.setter = function(name, fn) {
-		return shorthand(reduce, name, function(proto, setter) {
-			proto.__defineSetter__(setter, fn);
-		});
 	};
 	return reduce;
 };
