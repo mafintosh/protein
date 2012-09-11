@@ -16,7 +16,13 @@ var clone = function(from, to) {
 var injector = function() {
 	var hash = [];
 	var protos = [];
+	var empty;
 	var inject = function(obj) {
+		if (empty === undefined) {
+			empty = !Object.keys(inject.proto).length;
+		}
+		if (empty) return;
+
 		var i = hash.indexOf(obj.__proto__);
 
 		if (i === -1) {
