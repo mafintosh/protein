@@ -58,7 +58,7 @@ require('http').createServer(fn).listen(8080);
 But if we look closer at the above example we are actually parsing the query on every request even though we never use it.
 Wouldn't it be nicer to just parse when we access it?
 
-Using Protein we can just define a getter on the middleware prototype:
+Using Protein we can just define a getter on the mixin prototype:
 
 ``` js
 var mixin = protein()
