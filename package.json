@@ -1,8 +1,8 @@
 {
  "name":"protein",
- "version":"0.4.0",
+ "version":"0.5.0",
  "repository": "git://github.com/mafintosh/protein",
- "description":"Protein is connect compatible middleware with support for prototype methods, getters, and setters",
- "keywords": ["web", "middleware", "connect", "prototype", "prototypical", "getters", "setters"],
+ "description":"Protein is http prototype mixins for Node.js",
+ "keywords": ["web", "middleware", "mixin", "connect", "prototype", "prototypical", "getters", "setters"],
  "author": "Mathias Buus Madsen <mathiasbuus@gmail.com>"
 }

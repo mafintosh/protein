@@ -1,6 +1,6 @@
 # Protein
 
-Protein is http middleware for Node with support for prototype methods, getters and setters. It's compatible with [Connect](https://github.com/senchalabs/connect).
+Protein is http prototype mixins for Node.js
 
 It's available through npm:
 
@@ -12,20 +12,20 @@ It's available through npm:
 var protein = require('protein');
 var url = require('url');
 
-var fn = protein()
-	// Adds a query property to the request. Use request.query to access the parsed query
-	.getter('request.query', function() {
-		return this._query || (this._query = url.parse(request.url, true).query);
+var mixin = protein()
+	.use('request.query', {getter:true}, function() {
+		return this._query || (this.query = url.parse(this.url, true).query);
 	})
-	// Adds an echo method to the response. Use response.echo() to return the query
-	.fn('response.echo', function() {		
-		this.end(JSON.stringify(this.request.query));
-	})
-	.use(function(request, response) {
-		response.echo();
+	.use('response.echo', function(data) {
+		return this.end(JSON.stringify(data));
 	});
 
-require('http').createServer(fn).listen(8080);
+var listener = function(request, response) {
+	mixin(request, response);
+	response.echo(request.query);
+};
+
+require('http').createServer(listener).listen(8080);
 ```
 
 # Wat?
@@ -55,104 +55,67 @@ var fn = connect()
 require('http').createServer(fn).listen(8080);
 ```
 
-But if we look closer at the above example we are actually parsing the query on every request even though we never use it.  
+But if we look closer at the above example we are actually parsing the query on every request even though we never use it.
 Wouldn't it be nicer to just parse when we access it?
 
 Using Protein we can just define a getter on the middleware prototype:
 
 ``` js
-var fn = protein()
-	.getter('request.query', function() {
+var mixin = protein()
+	.use('request.query', {getter:true}, function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
 	.use( ... )
 ```
 
-Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.  
-Notice Protein is actually defining the getter on the middleware prototype for us so the is actually only defined once - *NOT* every request.
+Now when we access request.query the first time the query will be parsed and in all other cases no parsing happens.
+Notice Protein is actually defining the getter on the mixin prototype so it's actually only defined once - *NOT* every request.
 
-Similary we could just define `echo` on the middleware prototype instead of defining it on every request:
+Similary we could just define `echo` on the mixin prototype instead of defining it on every request:
 
 ``` js
-var fn = protein()
-	.getter('request.query', function() {
+var mixin = protein()
+	.use('request.query', {getter:true}, function() {
 		return this._query || (this._query = url.parse(request.url, true).query);
 	})
-	.fn('response.echo', function() {
+	.use('response.echo', function() {
 		this.end(JSON.stringify(request.query));
 	})
-	.use( ... )
 ```
 
-Note that we are only expanding the middleware prototype and not the prototype from the `http` module so their should be zero side effects.
+Note that we are only expanding the mixin prototype and not the prototype from the `http` module so there should be zero side effects.
 The final program just looks like this:
 
 ``` js
 var protein = require('protein');
 var url = require('url');
 
-var fn = protein()
-	.getter('request.query', function() {
-		return this._query || (this._query = url.parse(request.url, true).query);
+var mixin = protein()
+	.use('request.query', {getter:true}, function() {
+		return this._query || (this.query = url.parse(this.url, true).query);
 	})
-	.fn('response.echo', function() {
-		this.end(JSON.stringify(request.query));
-	})
-	.use(function(request, response) {
-		// this method is the only one which is run on every request
-		response.end('hello world');
+	.use('response.echo', function(data) {
+		return this.end(JSON.stringify(data));
 	});
 
-require('http').createServer(fn).listen(8080);
-```
-
-# Reusing middleware
-
-If you want to create middleware that can be reused in other places and which expands the middleware prototype you can use the following format:
-
-``` js
-var random = function(request, response, next) {
-	request.random = Math.random();
-	next();
+var listener = function(request, response) {
+	mixin(request, response);
+	response.echo('hello world');
 };
 
-random.response = {}; // the collection of middleware response prototype methods
-random.response.random = function() {
-	this.end(''+this.request.random); // we can access the request from the response using this.request	
-};
-
-protein().use(random).use(function(request, response) {
-	response.random(); // should return a random number
-});
+require('http').createServer(listener).listen(8080);
 ```
-
-If we dont want to run a function on every request but instead want to just expand the prototypes we can just declare a map:
-
-``` js
-var random = {request: {}, response: {}};
-
-random.request.__defineGetter__('random', function() {
-	return Math.random();
-});
-random.response.random = function() {
-	this.end(''+this.request.random);
-};
-
-protein().use(random).use(function(request, response) {
-	response.random(); // should return a random number
-});
-```
-
-For more examples on how to create your own reusable middleware see the [examples](https://github.com/mafintosh/Protein/tree/master/examples).
 
 # Connect compatibility
 
-All Connect modules should be compatible with Protein. To make a Protein module compatible with Connect you need to wrap it:
+Protein mixins are directly compatible with connect making then easy to use with your express application:
 
 ``` js
-var connectable = protein().use(myProteinMiddleware);
+var app = express();
 
-connect.use(connectable);
+var mixin = protein().use('response.echo', ...);
+
+app.use(mixin);
 ```
 
 # License
@@ -160,9 +123,9 @@ connect.use(connectable);
 **This software is licensed under "MIT"**
 
 > Copyright (c) 2012 Mathias Buus Madsen <mathiasbuus@gmail.com>
-> 
+>
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-> 
+>
 > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-> 
+>
 > THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

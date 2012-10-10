@@ -38,101 +38,37 @@ var injector = function() {
 	inject.proto = {};
 	return inject;
 };
-var onerror = function(err, req, res) {
-	if (err) {
-		console.error(err.stack);
-		res.writeHead(500, {'Content-Type': 'text/plain'});
-		res.end(err.stack+'\n');
-		return;
-	}
-	res.writeHead(404);
-	res.end();
-};
-var protein = function() {
-	var stack = [];
-	var onrequest = injector();
+
+module.exports = function() {
 	var onresponse = injector();
-
-	var shorthand = function(define) {
-		return function(name, fn) {
-			define(reduce[name.split('.')[0]], name.split('.').pop(), fn);
-			return reduce;
-		};
-	};
-	var reduce = function(req, res, callback) {
-		var i = 0;
-		var url = req.url;
-		var loop = function(err) {
-			var next = stack[i++];
-			var route = next && next.route;
-
-			req.url = url;
-			if (!next) return (callback || onerror)(err, req, res);
-			if (route) {
-				if (url.substr(0, route.length) !== route) return loop(err);
-				req.url = url.substr(route.length) || '/';
-				if (req.url[0] === '?') req.url = '/'+req.url;
-				if (req.url[0] !== '/') return loop(err);
-			}
-			try {
-				if (err && next.length < 4) return loop(err);
-				if (next.length >= 4) return next(err, req, res, loop);
-				next(req, res, loop);
-			} catch (err) {
-				loop(err);
-			}
-		};
-
-		// set the callback
-		req.next = res.next = loop;
-
-		// set request prototype
-		req.response = res;
-		onrequest(req);
-
-		// set response prototype
-		res.request = req;
-		onresponse(res);
-
-		// bootstrap the loop
-		loop();
+	var onrequest = injector();
+	var mixin = function(request, response, next) {
+		request.response = response;
+		onrequest(request);
+		response.request = request;
+		onresponse(response);
+		if (!next) return;
+		response.next = request.next = next;
+		next();
 	};
 
-	reduce.request = onrequest.proto;
-	reduce.response = onresponse.proto;
+	mixin.request = onrequest.proto;
+	mixin.response = onresponse.proto;
+	mixin.use = function(key, options, fn) {
+		if (typeof options === 'function') return mixin.use(key, {}, options);
 
-	reduce.getter = shorthand(function(proto, name, fn) {
-		proto.__defineGetter__(name, fn);
-	});
-	reduce.setter = shorthand(function(proto, name, fn) {
-		proto.__defineSetter__(name, fn);
-	});
-	reduce.fn = shorthand(function(proto, name, fn) {
-		proto[name] = fn;
-	});
+		key = key.replace('res.', 'response.').replace('req.', 'request.').split('.');
+		var owner = key[0] === 'response' ? onresponse : onrequest;
+		var method = key[1];
 
-	reduce.using = function(fn) {
-		return stack.indexOf(fn) > -1;
-	};
-	reduce.use = function(route, fn) {
-		if (!fn) {
-			fn = route;
-			route = null;
+		if (options.getter) {
+			owner.proto.__defineGetter__(method, fn);
+		} else if (options.setter) {
+			owner.proto.__defineSetter__(method, fn);
+		} else {
+			owner.proto[method] = fn;
 		}
-		if (!fn) return reduce;
-		if (Array.isArray(fn)) {
-			fn.forEach(reduce.use.bind(reduce, route));
-			return reduce;
-		}
-		if (typeof fn === 'function') {
-			fn.route = route && route.replace(/\/$/, ''); // FIXME: bug here if fn is reused :(
-			stack.push(fn);
-		}
-		clone(fn.request, reduce.request);
-		clone(fn.response, reduce.response);
-		return reduce;
+		return mixin;
 	};
-	return reduce;
+	return mixin;
 };
-
-module.exports = protein;
