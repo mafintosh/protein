@@ -10,7 +10,7 @@ var tests = fs.readdirSync(__dirname).filter(function(file) {
 	return !fs.statSync(path.join(__dirname,file)).isDirectory();
 }).filter(function(file) {
 	return /^test(-|_|\.).*\.js$/i.test(file);
-});
+}).sort();
 
 var cnt = 0;
 var all = tests.length;
